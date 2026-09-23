@@ -1,0 +1,15 @@
+:host {
+  display: block;
+}
+
+.topbar {
+  background: var(--color-primary-dark, #0b4468);
+  padding: 14px 28px;
+
+  .brand {
+    color: white;
+    font-weight: 600;
+    text-decoration: none;
+    font-size: 1.05rem;
+  }
+}

@@ -1,0 +1,61 @@
+.id-card {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin: 20px 0;
+}
+
+.id-card-face {
+  width: 380px;
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  padding: 18px 20px;
+  background: linear-gradient(135deg, #ffffff, #f2f7fb);
+  box-shadow: 0 2px 6px rgba(15, 92, 140, 0.08);
+}
+
+.plan-name {
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: var(--color-primary-dark);
+}
+
+.plan-type {
+  color: var(--color-muted);
+  font-size: 0.85rem;
+  margin-bottom: 12px;
+}
+
+.card-row {
+  display: flex;
+  gap: 24px;
+}
+
+.card-col {
+  flex: 1;
+}
+
+.line {
+  font-size: 0.88rem;
+  margin-bottom: 4px;
+
+  span {
+    display: block;
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    color: var(--color-muted);
+  }
+}
+
+.copay-row,
+.contract-row {
+  margin-top: 12px;
+  font-size: 0.82rem;
+  border-top: 1px solid var(--color-border);
+  padding-top: 8px;
+}
+
+.back-title {
+  font-weight: 700;
+  margin-bottom: 10px;
+}

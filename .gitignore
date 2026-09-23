@@ -1,0 +1,11 @@
+# .NET
+backend/bin/
+backend/obj/
+
+# Node / Angular (frontend/ has its own .gitignore too)
+frontend/node_modules/
+frontend/dist/
+frontend/.angular/
+
+# OS
+.DS_Store

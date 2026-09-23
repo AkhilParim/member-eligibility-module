@@ -1,0 +1,16 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: member_eligibility_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: member_eligibility
+      POSTGRES_USER: eligibility_app
+      POSTGRES_PASSWORD: eligibility_app_pw
+    ports:
+      - "55432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:

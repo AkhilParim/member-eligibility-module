@@ -1,0 +1,49 @@
+<section class="panel">
+  <h1>Member Search / Eligibility Lookup</h1>
+  <p class="hint">Search by member first/last name, or paste an exact subscriber number.</p>
+
+  <form class="search-bar" (ngSubmit)="search()">
+    <input
+      type="text"
+      name="search"
+      placeholder="e.g. Gonzalez or SUB100234501"
+      [(ngModel)]="searchTerm"
+    />
+    <button type="submit">Search</button>
+  </form>
+
+  @if (loading()) {
+    <p class="hint">Searching…</p>
+  }
+
+  @if (!loading() && searched() && results().length === 0) {
+    <p class="hint">No members matched.</p>
+  }
+
+  @if (results().length > 0) {
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Date of Birth</th>
+          <th>Plan</th>
+          <th>Eligibility</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (m of results(); track m.memberId) {
+          <tr (click)="openMember(m.memberId)" class="clickable">
+            <td>{{ m.lastName }}, {{ m.firstName }}</td>
+            <td>{{ m.dateOfBirth }}</td>
+            <td>{{ m.planName || '-' }}</td>
+            <td>
+              <span class="badge" [class.badge-ok]="m.eligibilityStatus === 'eligible'" [class.badge-warn]="m.eligibilityStatus !== 'eligible'">
+                {{ m.eligibilityStatus === 'eligible' ? 'Eligible' : 'Not Eligible' }}
+              </span>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
+</section>

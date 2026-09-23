@@ -1,0 +1,61 @@
+<section class="panel">
+  <nav class="page-nav">
+    <a class="back-link" routerLink="/search">&larr; Search</a>
+    <div class="tab-group">
+      <a class="tab" [routerLink]="['/members', memberId, 'eligibility']">Eligibility</a>
+      <span class="tab active">ID Card</span>
+      <a class="tab" [routerLink]="['/members', memberId, 'claims']">Claims &amp; EOB</a>
+    </div>
+  </nav>
+
+  @if (loading()) {
+    <p class="hint">Loading ID card…</p>
+  }
+
+  @if (!loading() && !card()) {
+    <p class="hint">No active ID card on file for this member.</p>
+  }
+
+  @if (card(); as c) {
+    <div class="id-card">
+      <div class="id-card-face front">
+        <div class="plan-name">{{ c.planName }}</div>
+        <div class="plan-type">{{ c.planType }}</div>
+
+        <div class="card-row">
+          <div class="card-col">
+            <div class="line"><span>Member Name</span>{{ c.memberName }}</div>
+            <div class="line"><span>Member ID</span>{{ c.subscriberNumber }}</div>
+            <div class="line"><span>Group Number</span>{{ c.groupNumber }}</div>
+            <div class="line"><span>Effective</span>{{ c.effectiveDate }}</div>
+          </div>
+          <div class="card-col">
+            <div class="line"><span>RxBIN</span>{{ c.rxBin || '-' }}</div>
+            <div class="line"><span>RxPCN</span>{{ c.rxPcn || '-' }}</div>
+            <div class="line"><span>RxGRP</span>{{ c.rxGrp || '-' }}</div>
+            <div class="line"><span>RxID</span>{{ c.rxId || c.subscriberNumber }}</div>
+          </div>
+        </div>
+
+        <div class="copay-row">
+          Copays — PCP ${{ c.copayPcp }} &nbsp; Specialist ${{ c.copaySpecialist }} &nbsp; ER ${{ c.copayEr }}
+        </div>
+        <div class="contract-row">
+          CMS Contract #: {{ c.cmsContractNumber || '-' }} &nbsp; Plan Benefit Package #: {{ c.planBenefitPackageNumber || '-' }}
+        </div>
+      </div>
+
+      <div class="id-card-face back">
+        <div class="back-title">Back of Card</div>
+        <div class="line"><span>Member Services</span>{{ c.memberServicesPhone || '-' }}</div>
+        <div class="line"><span>Behavioral Health</span>{{ c.behavioralHealthPhone || '-' }}</div>
+        <div class="line"><span>Pharmacy Help Desk</span>{{ c.pharmacyHelpDeskPhone || '-' }}</div>
+        <div class="line"><span>Claim Inquiry</span>{{ c.claimInquiryPhone || '-' }}</div>
+        <div class="line"><span>Website</span>{{ c.website || '-' }}</div>
+        <div class="line"><span>Send Claims To</span>{{ c.claimsAddress || '-' }}</div>
+      </div>
+    </div>
+
+    <a class="button-link" [href]="pdfUrl" target="_blank" rel="noopener">Download ID Card (PDF)</a>
+  }
+</section>

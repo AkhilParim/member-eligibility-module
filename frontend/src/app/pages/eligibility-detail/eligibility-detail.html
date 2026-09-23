@@ -1,0 +1,63 @@
+<section class="panel">
+  <nav class="page-nav">
+    <a class="back-link" routerLink="/search">&larr; Search</a>
+    <div class="tab-group">
+      <span class="tab active">Eligibility</span>
+      <a class="tab" [routerLink]="['/members', memberId, 'id-card']">ID Card</a>
+      <a class="tab" [routerLink]="['/members', memberId, 'claims']">Claims &amp; EOB</a>
+    </div>
+  </nav>
+
+  @if (loading()) {
+    <p class="hint">Loading eligibility…</p>
+  }
+
+  @if (!loading() && records().length === 0) {
+    <p class="hint">No enrollment history found for this member.</p>
+  }
+
+  @for (r of records(); track r.enrollmentId) {
+    <article class="panel" style="margin: 16px 0 0; padding: 20px;">
+      <h1>{{ r.firstName }} {{ r.lastName }}</h1>
+      <p class="hint">
+        DOB {{ r.dateOfBirth }} · Subscriber {{ r.subscriberNumber }} · {{ r.relationship }}
+      </p>
+      <span
+        class="badge"
+        [class.badge-ok]="r.eligibilityStatus === 'eligible'"
+        [class.badge-warn]="r.eligibilityStatus !== 'eligible'"
+      >
+        {{ r.eligibilityStatus === 'eligible' ? 'Eligible' : 'Not Eligible' }}
+      </span>
+
+      <div class="field-grid">
+        <div class="field">
+          <label>Plan</label>
+          <div class="value">{{ r.planName }}</div>
+        </div>
+        <div class="field">
+          <label>Plan Type</label>
+          <div class="value">{{ r.planType }}</div>
+        </div>
+        <div class="field">
+          <label>Group Number</label>
+          <div class="value">{{ r.groupNumber }}</div>
+        </div>
+        <div class="field">
+          <label>Coverage Window</label>
+          <div class="value">{{ r.effectiveDate }} – {{ r.termDate || 'open' }}</div>
+        </div>
+        <div class="field">
+          <label>PCP</label>
+          <div class="value">{{ r.pcpName || '-' }} {{ r.pcpPhone ? '(' + r.pcpPhone + ')' : '' }}</div>
+        </div>
+        <div class="field">
+          <label>Copays</label>
+          <div class="value">
+            PCP ${{ r.copayPcp }} · Specialist ${{ r.copaySpecialist }} · ER ${{ r.copayEr }}
+          </div>
+        </div>
+      </div>
+    </article>
+  }
+</section>

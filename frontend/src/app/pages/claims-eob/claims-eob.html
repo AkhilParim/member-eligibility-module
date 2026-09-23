@@ -1,0 +1,120 @@
+<section class="panel">
+  <nav class="page-nav">
+    <a class="back-link" routerLink="/search">&larr; Search</a>
+    <div class="tab-group">
+      <a class="tab" [routerLink]="['/members', memberId, 'eligibility']">Eligibility</a>
+      <a class="tab" [routerLink]="['/members', memberId, 'id-card']">ID Card</a>
+      <span class="tab active">Claims &amp; EOB</span>
+    </div>
+  </nav>
+
+  <h1>Claims</h1>
+
+  @if (loadingClaims()) {
+    <p class="hint">Loading claims…</p>
+  }
+
+  @if (!loadingClaims() && claims().length === 0) {
+    <p class="hint">No claims on file for this member.</p>
+  }
+
+  @if (claims().length > 0) {
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Claim #</th>
+          <th>Provider</th>
+          <th>Received</th>
+          <th>Status</th>
+          <th>Billed</th>
+          <th>What You Owe</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (c of claims(); track c.claimId) {
+          <tr class="clickable" (click)="viewEob(c.claimId)">
+            <td>{{ c.claimNumber }}</td>
+            <td>{{ c.providerName }}</td>
+            <td>{{ c.dateReceived }}</td>
+            <td>{{ c.claimStatus }}</td>
+            <td>${{ c.totalBilled }}</td>
+            <td>${{ c.totalWhatYouOwe }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
+
+  @if (loadingEob()) {
+    <p class="hint">Loading EOB…</p>
+  }
+
+  @if (selectedEob(); as eob) {
+    <article class="eob-panel">
+      <div class="eob-header">
+        <div>
+          <h2>Explanation of Benefits</h2>
+          <p class="not-a-bill">THIS IS NOT A BILL</p>
+        </div>
+        <a class="button-link" [href]="eobPdfUrl" target="_blank" rel="noopener">Download EOB (PDF)</a>
+      </div>
+
+      <div class="field-grid">
+        <div class="field"><label>Statement Date</label><div class="value">{{ eob.statementDate }}</div></div>
+        <div class="field"><label>Document Number</label><div class="value">{{ eob.documentNumber }}</div></div>
+        <div class="field"><label>Member</label><div class="value">{{ eob.memberName }}</div></div>
+        <div class="field"><label>Claim Number</label><div class="value">{{ eob.claimNumber }}</div></div>
+        <div class="field"><label>Provider / Payee</label><div class="value">{{ eob.providerName }} / {{ eob.payeeName }}</div></div>
+        <div class="field"><label>Date Paid</label><div class="value">{{ eob.datePaid || '-' }}</div></div>
+      </div>
+
+      <table class="data-table eob-table">
+        <thead>
+          <tr>
+            <th>Line</th>
+            <th>Date of Svc</th>
+            <th>Service</th>
+            <th>Status</th>
+            <th>Provider Chg</th>
+            <th>Allowed Chg</th>
+            <th>CoPay</th>
+            <th>Deductible</th>
+            <th>Coinsurance</th>
+            <th>Paid by Insurer</th>
+            <th>What You Owe</th>
+            <th>Remark</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (l of eob.lines; track l.lineNo) {
+            <tr>
+              <td>{{ l.lineNo }}</td>
+              <td>{{ l.dateOfService }}</td>
+              <td>{{ l.serviceDescription }}</td>
+              <td>{{ l.claimStatus }}</td>
+              <td>${{ l.providerCharges }}</td>
+              <td>${{ l.allowedCharges }}</td>
+              <td>${{ l.copay }}</td>
+              <td>${{ l.deductible }}</td>
+              <td>${{ l.coinsurance }}</td>
+              <td>${{ l.paidByInsurer }}</td>
+              <td>${{ l.whatYouOwe }}</td>
+              <td>{{ l.remarkCode || '' }}</td>
+            </tr>
+          }
+          <tr class="totals-row">
+            <td colspan="4">Total</td>
+            <td>${{ eob.totals.providerCharges }}</td>
+            <td>${{ eob.totals.allowedCharges }}</td>
+            <td>${{ eob.totals.copay }}</td>
+            <td>${{ eob.totals.deductible }}</td>
+            <td>${{ eob.totals.coinsurance }}</td>
+            <td>${{ eob.totals.paidByInsurer }}</td>
+            <td>${{ eob.totals.whatYouOwe }}</td>
+            <td></td>
+          </tr>
+        </tbody>
+      </table>
+    </article>
+  }
+</section>

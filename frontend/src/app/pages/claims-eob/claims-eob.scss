@@ -1,0 +1,31 @@
+.eob-panel {
+  margin-top: 24px;
+  border-top: 2px solid var(--color-border);
+  padding-top: 16px;
+}
+
+.eob-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.not-a-bill {
+  color: #b3261e;
+  font-weight: 700;
+  font-size: 0.85rem;
+  margin: 2px 0 0;
+}
+
+.eob-table {
+  font-size: 0.78rem;
+
+  th, td {
+    padding: 6px 8px;
+  }
+}
+
+.totals-row {
+  font-weight: 700;
+  background: #f4f6f8;
+}

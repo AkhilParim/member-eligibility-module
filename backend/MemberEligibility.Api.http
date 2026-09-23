@@ -1,0 +1,6 @@
+@MemberEligibility.Api_HostAddress = http://localhost:5152
+
+GET {{MemberEligibility.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
