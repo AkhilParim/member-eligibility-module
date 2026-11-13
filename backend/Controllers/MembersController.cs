@@ -103,4 +103,62 @@ public class MembersController : ControllerBase
 
         return Ok(claims);
     }
+
+    [HttpGet("{memberId:long}/eob")]
+    public async Task<ActionResult<MemberEobDto>> GetMemberEob(
+        long memberId, [FromQuery] DateOnly? from, [FromQuery] DateOnly? to)
+    {
+        if (from > to) return InvalidRangeProblem();
+
+        var eob = await _functions.GetMemberEobAsync(memberId, from, to);
+        if (eob is null) return NotFound();
+        if (eob.Claims.Count == 0) return NoClaimsProblem();
+
+        return Ok(eob);
+    }
+
+    [HttpGet("{memberId:long}/eob/pdf")]
+    public async Task<IActionResult> GetMemberEobPdf(
+        long memberId, [FromQuery] DateOnly? from, [FromQuery] DateOnly? to)
+    {
+        if (from > to) return InvalidRangeProblem();
+
+        var eob = await _functions.GetMemberEobAsync(memberId, from, to);
+        if (eob is null) return NotFound();
+        if (eob.Claims.Count == 0) return NoClaimsProblem();
+
+        return File(MemberEobPdfGenerator.Generate(eob), "application/pdf", $"eob-member-{memberId}.pdf");
+    }
+
+    [HttpGet("{memberId:long}/eop")]
+    public async Task<ActionResult<MemberEopDto>> GetMemberEop(
+        long memberId, [FromQuery] DateOnly? from, [FromQuery] DateOnly? to)
+    {
+        if (from > to) return InvalidRangeProblem();
+
+        var eop = await _functions.GetMemberEopAsync(memberId, from, to);
+        if (eop is null) return NotFound();
+        if (eop.ClaimCount == 0) return NoClaimsProblem();
+
+        return Ok(eop);
+    }
+
+    [HttpGet("{memberId:long}/eop/pdf")]
+    public async Task<IActionResult> GetMemberEopPdf(
+        long memberId, [FromQuery] DateOnly? from, [FromQuery] DateOnly? to)
+    {
+        if (from > to) return InvalidRangeProblem();
+
+        var eop = await _functions.GetMemberEopAsync(memberId, from, to);
+        if (eop is null) return NotFound();
+        if (eop.ClaimCount == 0) return NoClaimsProblem();
+
+        return File(EopPdfGenerator.Generate(eop), "application/pdf", $"eop-member-{memberId}.pdf");
+    }
+
+    private ObjectResult InvalidRangeProblem() =>
+        Problem(detail: "'from' must be on or before 'to'.", statusCode: StatusCodes.Status400BadRequest);
+
+    private ObjectResult NoClaimsProblem() =>
+        Problem(detail: "No claims found for this member in the selected period.", statusCode: StatusCodes.Status404NotFound);
 }

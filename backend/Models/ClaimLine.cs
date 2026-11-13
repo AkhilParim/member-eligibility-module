@@ -16,4 +16,6 @@ public class ClaimLine
     public decimal PaidByInsurer { get; set; }
     public decimal WhatYouOwe { get; set; }
     public string? RemarkCode { get; set; }
+    public string? ProcedureCode { get; set; }
+    public string? AdjustmentReasonCode { get; set; }
 }

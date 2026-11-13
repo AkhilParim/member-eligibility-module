@@ -13,6 +13,9 @@ public class Claim
     public string ClaimStatus { get; set; } = "paid";
     public DateOnly StatementDate { get; set; }
     public string DocumentNumber { get; set; } = string.Empty;
+    public string? PaymentNumber { get; set; }
+    public string? PaymentMethod { get; set; }
+    public string? ProviderNpi { get; set; }
 
     public List<ClaimLine> Lines { get; set; } = new();
 }

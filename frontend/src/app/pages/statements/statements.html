@@ -1,0 +1,270 @@
+<section class="panel">
+  <nav class="page-nav">
+    <a class="back-link" routerLink="/search">&larr; Search</a>
+    <div class="tab-group">
+      <a class="tab" [routerLink]="['/members', memberId, 'eligibility']">Eligibility</a>
+      <a class="tab" [routerLink]="['/members', memberId, 'id-card']">ID Card</a>
+      <a class="tab" [routerLink]="['/members', memberId, 'claims']">Claims &amp; EOB</a>
+      <span class="tab active">Statements</span>
+    </div>
+  </nav>
+
+  <h1>Statements</h1>
+  <p class="hint">
+    Member-level documents built from all of this member's claims. Filter by date of service, or leave
+    the range blank to include everything.
+  </p>
+
+  <form class="range" (ngSubmit)="load()">
+    <label>From <input type="date" name="from" [(ngModel)]="from" /></label>
+    <label>To <input type="date" name="to" [(ngModel)]="to" /></label>
+    <button type="submit">Apply</button>
+    <button type="button" class="secondary" (click)="clear()">Clear</button>
+  </form>
+
+  <div class="tab-group mode-switch">
+    <button type="button" class="tab" [class.active]="mode() === 'eob'" (click)="setMode('eob')">
+      Explanation of Benefits <small>(member)</small>
+    </button>
+    <button type="button" class="tab" [class.active]="mode() === 'eop'" (click)="setMode('eop')">
+      Explanation of Payment <small>(provider)</small>
+    </button>
+  </div>
+
+  @if (loading()) {
+    <p class="hint">Loading…</p>
+  }
+
+  @if (message(); as msg) {
+    <p class="notice">{{ msg }}</p>
+  }
+
+  @if (mode() === 'eob' && eob(); as doc) {
+    <article class="doc">
+      <div class="doc-header">
+        <div>
+          <h2>Explanation of Benefits</h2>
+          <p class="not-a-bill">THIS IS NOT A BILL</p>
+        </div>
+        <a class="button-link" [href]="pdfUrl()" target="_blank" rel="noopener">Download EOB (PDF)</a>
+      </div>
+
+      <div class="field-grid">
+        <div class="field"><label>Member</label><div class="value">{{ doc.memberName }}</div></div>
+        <div class="field"><label>Subscriber Number</label><div class="value">{{ doc.subscriberNumber || '-' }}</div></div>
+        <div class="field"><label>Plan</label><div class="value">{{ doc.planName || '-' }}</div></div>
+        <div class="field"><label>Group Number</label><div class="value">{{ doc.groupNumber || '-' }}</div></div>
+        <div class="field">
+          <label>Service Period</label>
+          <div class="value">{{ doc.periodFrom || 'Start' }} – {{ doc.periodTo || 'Present' }}</div>
+        </div>
+        <div class="field"><label>Claims</label><div class="value">{{ doc.claims.length }}</div></div>
+      </div>
+
+      @for (claim of doc.claims; track claim.claimId) {
+        <section class="claim">
+          <h3>{{ claim.claimNumber }} <span class="muted">· {{ claim.providerName }}</span></h3>
+          <p class="meta">
+            Document {{ claim.documentNumber }} · Received {{ claim.dateReceived }} · Paid
+            {{ claim.datePaid || '-' }} · Status {{ claim.claimStatus }}
+          </p>
+          <div class="table-wrap">
+            <table class="data-table compact">
+              <thead>
+                <tr>
+                  <th>Line</th>
+                  <th>Date of Svc</th>
+                  <th>Service</th>
+                  <th>Status</th>
+                  <th class="num">Provider Chg</th>
+                  <th class="num">Allowed Chg</th>
+                  <th class="num">CoPay</th>
+                  <th class="num">Deductible</th>
+                  <th class="num">Coinsurance</th>
+                  <th class="num">Paid by Insurer</th>
+                  <th class="num">What You Owe</th>
+                  <th>Remark</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (l of claim.lines; track l.lineNo) {
+                  <tr>
+                    <td>{{ l.lineNo }}</td>
+                    <td>{{ l.dateOfService }}</td>
+                    <td>{{ l.serviceDescription }}</td>
+                    <td>{{ l.claimStatus }}</td>
+                    <td class="num">${{ l.providerCharges | number: '1.2-2' }}</td>
+                    <td class="num">${{ l.allowedCharges | number: '1.2-2' }}</td>
+                    <td class="num">${{ l.copay | number: '1.2-2' }}</td>
+                    <td class="num">${{ l.deductible | number: '1.2-2' }}</td>
+                    <td class="num">${{ l.coinsurance | number: '1.2-2' }}</td>
+                    <td class="num">${{ l.paidByInsurer | number: '1.2-2' }}</td>
+                    <td class="num">${{ l.whatYouOwe | number: '1.2-2' }}</td>
+                    <td>{{ l.remarkCode || '' }}</td>
+                  </tr>
+                }
+                <tr class="totals-row">
+                  <td colspan="4" class="num">Claim total</td>
+                  <td class="num">${{ claim.totals.providerCharges | number: '1.2-2' }}</td>
+                  <td class="num">${{ claim.totals.allowedCharges | number: '1.2-2' }}</td>
+                  <td class="num">${{ claim.totals.copay | number: '1.2-2' }}</td>
+                  <td class="num">${{ claim.totals.deductible | number: '1.2-2' }}</td>
+                  <td class="num">${{ claim.totals.coinsurance | number: '1.2-2' }}</td>
+                  <td class="num">${{ claim.totals.paidByInsurer | number: '1.2-2' }}</td>
+                  <td class="num">${{ claim.totals.whatYouOwe | number: '1.2-2' }}</td>
+                  <td></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      }
+
+      <section class="grand-totals">
+        <h3>Statement totals</h3>
+        <div class="totals-grid">
+          <div><span>Provider charges</span><strong>${{ doc.totals.providerCharges | number: '1.2-2' }}</strong></div>
+          <div><span>Allowed</span><strong>${{ doc.totals.allowedCharges | number: '1.2-2' }}</strong></div>
+          <div><span>CoPay</span><strong>${{ doc.totals.copay | number: '1.2-2' }}</strong></div>
+          <div><span>Deductible</span><strong>${{ doc.totals.deductible | number: '1.2-2' }}</strong></div>
+          <div><span>Coinsurance</span><strong>${{ doc.totals.coinsurance | number: '1.2-2' }}</strong></div>
+          <div><span>Paid by insurer</span><strong>${{ doc.totals.paidByInsurer | number: '1.2-2' }}</strong></div>
+          <div><span>What you owe</span><strong>${{ doc.totals.whatYouOwe | number: '1.2-2' }}</strong></div>
+        </div>
+      </section>
+    </article>
+  }
+
+  @if (mode() === 'eop' && eop(); as doc) {
+    <article class="doc">
+      <div class="doc-header">
+        <div>
+          <h2>Explanation of Payment</h2>
+          <p class="hint">Provider remittance for processed claims. Not a bill to the patient.</p>
+        </div>
+        <a class="button-link" [href]="pdfUrl()" target="_blank" rel="noopener">Download EOP (PDF)</a>
+      </div>
+
+      <div class="field-grid">
+        <div class="field">
+          <label>Payer</label>
+          <div class="value">{{ doc.payerName || '-' }} (ID {{ doc.payerId || '-' }})</div>
+        </div>
+        <div class="field"><label>Provider inquiries</label><div class="value">{{ doc.payerPhone || '-' }}</div></div>
+        <div class="field"><label>Patient</label><div class="value">{{ doc.memberName }}</div></div>
+        <div class="field">
+          <label>Member ID / Group</label>
+          <div class="value">{{ doc.subscriberNumber || '-' }} / {{ doc.groupNumber || '-' }}</div>
+        </div>
+        <div class="field">
+          <label>Service Period</label>
+          <div class="value">{{ doc.periodFrom || 'Start' }} – {{ doc.periodTo || 'Present' }}</div>
+        </div>
+        <div class="field">
+          <label>Claims / Payments</label>
+          <div class="value">{{ doc.claimCount }} / {{ doc.payments.length }}</div>
+        </div>
+      </div>
+
+      @for (payment of doc.payments; track $index) {
+        <section class="payment">
+          <div class="payment-banner">
+            <div>
+              <strong>{{ payment.payeeName }}</strong>
+              <div class="muted">NPI {{ payment.providerNpi || '-' }}</div>
+            </div>
+            <div>
+              @if (payment.paymentNumber) {
+                <strong>{{ payment.paymentMethod }} #{{ payment.paymentNumber }}</strong>
+                <div class="muted">Paid {{ payment.paymentDate || '-' }}</div>
+              } @else {
+                <strong class="no-pay">No payment issued</strong>
+                <div class="muted">Processed {{ payment.paymentDate || '-' }}</div>
+              }
+            </div>
+            <div class="amount">
+              <span class="muted">Payment amount</span>
+              <strong>${{ payment.totals.paid | number: '1.2-2' }}</strong>
+            </div>
+          </div>
+
+          <div class="table-wrap">
+            <table class="data-table compact">
+              <thead>
+                <tr>
+                  <th>Serv Date</th>
+                  <th>Proc</th>
+                  <th>Description</th>
+                  <th class="num">Billed</th>
+                  <th class="num">Adjustment</th>
+                  <th>RC</th>
+                  <th class="num">Allowed</th>
+                  <th class="num">CoPay</th>
+                  <th class="num">Deduct</th>
+                  <th class="num">Coins</th>
+                  <th class="num">Pt Resp</th>
+                  <th class="num">Prov Pd</th>
+                  <th>Remark</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (claim of payment.claims; track claim.claimId) {
+                  <tr class="claim-row">
+                    <td colspan="13">
+                      Claim {{ claim.claimNumber }} · Doc {{ claim.documentNumber }} · Rendering provider
+                      {{ claim.providerName }} · Received {{ claim.dateReceived }} · {{ claim.claimStatus }}
+                    </td>
+                  </tr>
+                  @for (l of claim.lines; track l.lineNo) {
+                    <tr>
+                      <td>{{ l.dateOfService }}</td>
+                      <td>{{ l.procedureCode || '-' }}</td>
+                      <td>{{ l.serviceDescription }}@if (l.lineStatus === 'Denied') { <span class="denied"> (denied)</span> }</td>
+                      <td class="num">${{ l.billed | number: '1.2-2' }}</td>
+                      <td class="num">${{ l.contractualAdjustment | number: '1.2-2' }}</td>
+                      <td>{{ l.reasonCode || '' }}</td>
+                      <td class="num">${{ l.allowed | number: '1.2-2' }}</td>
+                      <td class="num">${{ l.copay | number: '1.2-2' }}</td>
+                      <td class="num">${{ l.deductible | number: '1.2-2' }}</td>
+                      <td class="num">${{ l.coinsurance | number: '1.2-2' }}</td>
+                      <td class="num">${{ l.patientResponsibility | number: '1.2-2' }}</td>
+                      <td class="num">${{ l.paid | number: '1.2-2' }}</td>
+                      <td>{{ l.remarkCode || '' }}</td>
+                    </tr>
+                  }
+                  <tr class="totals-row">
+                    <td colspan="3" class="num">Claim totals</td>
+                    <td class="num">${{ claim.totals.billed | number: '1.2-2' }}</td>
+                    <td class="num">${{ claim.totals.contractualAdjustment | number: '1.2-2' }}</td>
+                    <td></td>
+                    <td class="num">${{ claim.totals.allowed | number: '1.2-2' }}</td>
+                    <td class="num">${{ claim.totals.copay | number: '1.2-2' }}</td>
+                    <td class="num">${{ claim.totals.deductible | number: '1.2-2' }}</td>
+                    <td class="num">${{ claim.totals.coinsurance | number: '1.2-2' }}</td>
+                    <td class="num">${{ claim.totals.patientResponsibility | number: '1.2-2' }}</td>
+                    <td class="num">${{ claim.totals.paid | number: '1.2-2' }}</td>
+                    <td></td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </section>
+      }
+
+      <section class="grand-totals">
+        <h3>Totals</h3>
+        <div class="totals-grid">
+          <div><span>Billed</span><strong>${{ doc.totals.billed | number: '1.2-2' }}</strong></div>
+          <div><span>Adjustments</span><strong>${{ doc.totals.contractualAdjustment | number: '1.2-2' }}</strong></div>
+          <div><span>Allowed</span><strong>${{ doc.totals.allowed | number: '1.2-2' }}</strong></div>
+          <div><span>CoPay</span><strong>${{ doc.totals.copay | number: '1.2-2' }}</strong></div>
+          <div><span>Deductible</span><strong>${{ doc.totals.deductible | number: '1.2-2' }}</strong></div>
+          <div><span>Coinsurance</span><strong>${{ doc.totals.coinsurance | number: '1.2-2' }}</strong></div>
+          <div><span>Patient resp.</span><strong>${{ doc.totals.patientResponsibility | number: '1.2-2' }}</strong></div>
+          <div><span>Provider paid</span><strong>${{ doc.totals.paid | number: '1.2-2' }}</strong></div>
+        </div>
+      </section>
+    </article>
+  }
+</section>

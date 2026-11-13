@@ -94,10 +94,35 @@ public class EligibilityFunctions
         await using var cmd = _dataSource.CreateCommand("SELECT fn_get_eob($1)");
         cmd.Parameters.AddWithValue(claimId);
 
-        var json = (string?)await cmd.ExecuteScalarAsync();
-        if (string.IsNullOrEmpty(json)) return null;
+        return await ReadJsonAsync<EobDto>(cmd);
+    }
 
-        return JsonSerializer.Deserialize<EobDto>(json);
+    public async Task<MemberEobDto?> GetMemberEobAsync(long memberId, DateOnly? from, DateOnly? to)
+    {
+        await using var cmd = _dataSource.CreateCommand("SELECT fn_get_member_eob($1, $2::date, $3::date)");
+        cmd.Parameters.AddWithValue(memberId);
+        cmd.Parameters.AddWithValue((object?)from ?? DBNull.Value);
+        cmd.Parameters.AddWithValue((object?)to ?? DBNull.Value);
+
+        return await ReadJsonAsync<MemberEobDto>(cmd);
+    }
+
+    public async Task<MemberEopDto?> GetMemberEopAsync(long memberId, DateOnly? from, DateOnly? to)
+    {
+        await using var cmd = _dataSource.CreateCommand("SELECT fn_get_member_eop($1, $2::date, $3::date)");
+        cmd.Parameters.AddWithValue(memberId);
+        cmd.Parameters.AddWithValue((object?)from ?? DBNull.Value);
+        cmd.Parameters.AddWithValue((object?)to ?? DBNull.Value);
+
+        return await ReadJsonAsync<MemberEopDto>(cmd);
+    }
+
+    private static async Task<T?> ReadJsonAsync<T>(NpgsqlCommand cmd) where T : class
+    {
+        var scalar = await cmd.ExecuteScalarAsync();
+        if (scalar is not string json || json.Length == 0) return null;
+
+        return JsonSerializer.Deserialize<T>(json);
     }
 
     public async Task<long> EnrollMemberAsync(long memberId, long planId, string subscriberNumber,

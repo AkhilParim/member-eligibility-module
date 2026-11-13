@@ -67,10 +67,22 @@ namespace MemberEligibility.Api.Migrations
                         .HasColumnType("text")
                         .HasColumnName("payee_name");
 
+                    b.Property<string>("PaymentMethod")
+                        .HasColumnType("text")
+                        .HasColumnName("payment_method");
+
+                    b.Property<string>("PaymentNumber")
+                        .HasColumnType("text")
+                        .HasColumnName("payment_number");
+
                     b.Property<string>("ProviderName")
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("provider_name");
+
+                    b.Property<string>("ProviderNpi")
+                        .HasColumnType("text")
+                        .HasColumnName("provider_npi");
 
                     b.Property<DateOnly>("StatementDate")
                         .HasColumnType("date")
@@ -90,6 +102,10 @@ namespace MemberEligibility.Api.Migrations
                         .HasColumnName("id");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("AdjustmentReasonCode")
+                        .HasColumnType("text")
+                        .HasColumnName("adjustment_reason_code");
 
                     b.Property<decimal>("AllowedCharges")
                         .HasColumnType("numeric")
@@ -127,6 +143,10 @@ namespace MemberEligibility.Api.Migrations
                     b.Property<decimal>("PaidByInsurer")
                         .HasColumnType("numeric")
                         .HasColumnName("paid_by_insurer");
+
+                    b.Property<string>("ProcedureCode")
+                        .HasColumnType("text")
+                        .HasColumnName("procedure_code");
 
                     b.Property<decimal>("ProviderCharges")
                         .HasColumnType("numeric")
