@@ -4,6 +4,7 @@ import { EligibilityDetail } from './pages/eligibility-detail/eligibility-detail
 import { IdCard } from './pages/id-card/id-card';
 import { ClaimsEob } from './pages/claims-eob/claims-eob';
 import { Statements } from './pages/statements/statements';
+import { Capitation } from './pages/capitation/capitation';
 
 export const routes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'search' },
@@ -12,4 +13,5 @@ export const routes: Routes = [
   { path: 'members/:memberId/id-card', component: IdCard },
   { path: 'members/:memberId/claims', component: ClaimsEob },
   { path: 'members/:memberId/statements', component: Statements },
+  { path: 'capitation', component: Capitation },
 ];

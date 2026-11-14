@@ -117,6 +117,23 @@ public class EligibilityFunctions
         return await ReadJsonAsync<MemberEopDto>(cmd);
     }
 
+    public async Task<CapitationDetailDto?> GetCapitationAsync(long contractId, DateOnly month)
+    {
+        await using var cmd = _dataSource.CreateCommand("SELECT fn_calculate_capitation($1, $2)");
+        cmd.Parameters.AddWithValue(contractId);
+        cmd.Parameters.AddWithValue(month);
+
+        return await ReadJsonAsync<CapitationDetailDto>(cmd);
+    }
+
+    public async Task<CapitationSummaryDto?> GetCapitationSummaryAsync(DateOnly month)
+    {
+        await using var cmd = _dataSource.CreateCommand("SELECT fn_capitation_summary($1)");
+        cmd.Parameters.AddWithValue(month);
+
+        return await ReadJsonAsync<CapitationSummaryDto>(cmd);
+    }
+
     private static async Task<T?> ReadJsonAsync<T>(NpgsqlCommand cmd) where T : class
     {
         var scalar = await cmd.ExecuteScalarAsync();

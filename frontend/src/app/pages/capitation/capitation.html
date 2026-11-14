@@ -1,0 +1,127 @@
+<section class="panel">
+  <h1>Capitation</h1>
+  <p class="hint">
+    Provider capitation built from the MMR. For each provider contract, the members assigned to it are
+    matched to their MMR rows for the payment month.
+  </p>
+
+  <div class="calc-note">
+    <strong>Flat PMPM:</strong> capitation = contract PMPM rate × member-months. A regular MMR row counts
+    +1 member-month; a retroactive adjustment counts −1 (reversal, shown as a negative amount) or +1
+    (late add). MMR premium is shown for reference only.
+  </div>
+
+  <div class="month-picker">
+    <label for="month">Payment month</label>
+    <select id="month" [ngModel]="month()" (ngModelChange)="onMonthChange($event)">
+      @for (m of months(); track m) {
+        <option [value]="m">{{ m | date: 'MMMM y' }}</option>
+      }
+    </select>
+  </div>
+
+  @if (loading()) {
+    <p class="hint">Loading…</p>
+  }
+
+  @if (message(); as msg) {
+    <p class="notice">{{ msg }}</p>
+  }
+
+  @if (summary(); as s) {
+    <div class="table-wrap">
+      <table class="data-table compact">
+        <thead>
+          <tr>
+            <th>Contract</th>
+            <th>Provider group</th>
+            <th class="num">PMPM rate</th>
+            <th class="num">Members</th>
+            <th class="num">Member-months</th>
+            <th class="num">MMR premium (ref.)</th>
+            <th class="num">Capitation</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (c of s.contracts; track c.contractId) {
+            <tr
+              class="clickable"
+              [class.selected]="selectedContractId() === c.contractId"
+              (click)="selectContract(c.contractId)"
+            >
+              <td>{{ c.contractNumber }}</td>
+              <td>{{ c.providerGroupName }}</td>
+              <td class="num">{{ c.pmpmRate | currency }}</td>
+              <td class="num">{{ c.memberCount }}</td>
+              <td class="num">{{ c.memberMonths }}</td>
+              <td class="num">{{ c.mmrPremium | currency }}</td>
+              <td class="num strong" [class.negative]="c.capitation < 0">{{ c.capitation | currency }}</td>
+            </tr>
+          }
+          <tr class="totals-row">
+            <td colspan="3" class="num">All contracts</td>
+            <td class="num">{{ s.totals.memberCount }}</td>
+            <td class="num">{{ s.totals.memberMonths }}</td>
+            <td class="num">{{ s.totals.mmrPremium | currency }}</td>
+            <td class="num">{{ s.totals.capitation | currency }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="hint">Select a contract to see its members.</p>
+  }
+
+  @if (detail(); as d) {
+    <article class="doc">
+      <div class="doc-header">
+        <div>
+          <h2>{{ d.contract.providerGroupName }}</h2>
+          <p class="hint">
+            {{ d.contract.contractNumber }} · TIN {{ d.contract.providerTin || '-' }} · PMPM
+            {{ d.contract.pmpmRate | currency }} · {{ d.paymentMonth | date: 'MMMM y' }}
+          </p>
+        </div>
+        @if (pdfUrl(); as url) {
+          <a class="button-link" [href]="url" target="_blank" rel="noopener">Download statement (PDF)</a>
+        }
+      </div>
+
+      <div class="table-wrap">
+        <table class="data-table compact">
+          <thead>
+            <tr>
+              <th>Member</th>
+              <th>MBI</th>
+              <th class="num">Risk factor</th>
+              <th class="num">Regular months</th>
+              <th class="num">Adjustment months</th>
+              <th class="num">Member-months</th>
+              <th class="num">MMR premium (ref.)</th>
+              <th class="num">Capitation</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (m of d.members; track m.memberId) {
+              <tr>
+                <td>{{ m.memberName }}</td>
+                <td>{{ m.mbi || '-' }}</td>
+                <td class="num">{{ m.riskFactor === null ? '-' : (m.riskFactor | number: '1.4-4') }}</td>
+                <td class="num">{{ m.regularMonths }}</td>
+                <td class="num">{{ m.adjustmentMonths > 0 ? '+' : '' }}{{ m.adjustmentMonths }}</td>
+                <td class="num">{{ m.memberMonths }}</td>
+                <td class="num">{{ m.mmrPremium | currency }}</td>
+                <td class="num strong" [class.negative]="m.capitation < 0">{{ m.capitation | currency }}</td>
+              </tr>
+            }
+            <tr class="totals-row">
+              <td colspan="5" class="num">Contract total ({{ d.totals.memberCount }} members)</td>
+              <td class="num">{{ d.totals.memberMonths }}</td>
+              <td class="num">{{ d.totals.mmrPremium | currency }}</td>
+              <td class="num">{{ d.totals.capitation | currency }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </article>
+  }
+</section>

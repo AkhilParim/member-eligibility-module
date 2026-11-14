@@ -223,6 +223,61 @@ export interface MemberEop {
   totals: EopTotals;
 }
 
+export interface CapitationTotals {
+  memberCount: number;
+  memberMonths: number;
+  mmrPremium: number;
+  capitation: number;
+  capitationPercentOfPremium: number | null;
+}
+
+export interface CapitationSummaryContract {
+  contractId: number;
+  contractNumber: string;
+  providerGroupName: string;
+  pmpmRate: number;
+  memberCount: number;
+  memberMonths: number;
+  mmrPremium: number;
+  capitation: number;
+  capitationPercentOfPremium: number | null;
+}
+
+export interface CapitationSummary {
+  paymentMonth: string;
+  contracts: CapitationSummaryContract[];
+  totals: CapitationTotals;
+}
+
+export interface CapitationContract {
+  contractId: number;
+  contractNumber: string;
+  providerGroupName: string;
+  providerTin: string | null;
+  pmpmRate: number;
+  effectiveDate: string;
+  termDate: string | null;
+}
+
+export interface CapitationMember {
+  memberId: number;
+  memberName: string;
+  mbi: string | null;
+  riskFactor: number | null;
+  regularMonths: number;
+  adjustmentMonths: number;
+  memberMonths: number;
+  mmrPremium: number;
+  capitation: number;
+}
+
+export interface CapitationDetail {
+  paymentMonth: string;
+  contract: CapitationContract;
+  members: CapitationMember[];
+  totals: CapitationTotals;
+}
+
 @Service()
 export class ApiClient {
   private readonly http = inject(HttpClient);
@@ -276,6 +331,22 @@ export class ApiClient {
 
   getMemberEopPdfUrl(memberId: number, from?: string, to?: string): string {
     return `${this.baseUrl}/members/${memberId}/eop/pdf${this.rangeQuery(from, to)}`;
+  }
+
+  getCapitationMonths(): Observable<string[]> {
+    return this.http.get<string[]>(`${this.baseUrl}/capitation/months`);
+  }
+
+  getCapitationSummary(month: string): Observable<CapitationSummary> {
+    return this.http.get<CapitationSummary>(`${this.baseUrl}/capitation`, { params: { month } });
+  }
+
+  getCapitationDetail(contractId: number, month: string): Observable<CapitationDetail> {
+    return this.http.get<CapitationDetail>(`${this.baseUrl}/capitation/${contractId}`, { params: { month } });
+  }
+
+  getCapitationPdfUrl(contractId: number, month: string): string {
+    return `${this.baseUrl}/capitation/${contractId}/pdf?month=${encodeURIComponent(month)}`;
   }
 
   private rangeParams(from?: string, to?: string): Record<string, string> {

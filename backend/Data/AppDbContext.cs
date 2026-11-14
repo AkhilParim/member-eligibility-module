@@ -13,6 +13,8 @@ public class AppDbContext : DbContext
     public DbSet<IdCard> IdCards => Set<IdCard>();
     public DbSet<Claim> Claims => Set<Claim>();
     public DbSet<ClaimLine> ClaimLines => Set<ClaimLine>();
+    public DbSet<ProviderContract> ProviderContracts => Set<ProviderContract>();
+    public DbSet<MmrRecord> MmrRecords => Set<MmrRecord>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -22,6 +24,13 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<IdCard>().ToTable("id_cards");
         modelBuilder.Entity<Claim>().ToTable("claims");
         modelBuilder.Entity<ClaimLine>().ToTable("claim_lines");
+        modelBuilder.Entity<ProviderContract>().ToTable("provider_contracts");
+        modelBuilder.Entity<MmrRecord>().ToTable("mmr_records");
+
+        modelBuilder.Entity<Member>()
+            .HasOne<ProviderContract>()
+            .WithMany()
+            .HasForeignKey(m => m.ProviderContractId);
 
         modelBuilder.Entity<Enrollment>()
             .HasOne(e => e.Member)

@@ -13,6 +13,8 @@ public class Member
     public string? Zip { get; set; }
     public string? Phone { get; set; }
     public DateTimeOffset CreatedAt { get; set; }
+    public string? Mbi { get; set; }
+    public long? ProviderContractId { get; set; }
 
     public List<Enrollment> Enrollments { get; set; } = new();
 }

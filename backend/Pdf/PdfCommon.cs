@@ -18,7 +18,7 @@ public static class PdfStyles
         container.Background(Colors.Grey.Lighten2).Padding(3).BorderTop(1).BorderColor(Colors.Grey.Darken1);
 
     public static string Money(decimal value) =>
-        "$" + value.ToString("#,##0.00", CultureInfo.InvariantCulture);
+        (value < 0 ? "-$" : "$") + Math.Abs(value).ToString("#,##0.00", CultureInfo.InvariantCulture);
 
     public static string Date(DateOnly? value) =>
         value.HasValue ? value.Value.ToString("MM/dd/yyyy", CultureInfo.InvariantCulture) : "-";

@@ -1,0 +1,95 @@
+.calc-note {
+  background: #eef5fb;
+  border-left: 3px solid var(--color-primary);
+  border-radius: 4px;
+  padding: 10px 14px;
+  font-size: 0.85rem;
+  margin: 12px 0 16px;
+}
+
+.month-picker {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+
+  label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    color: var(--color-muted);
+  }
+
+  select {
+    padding: 7px 10px;
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+    font-size: 0.9rem;
+    min-width: 170px;
+  }
+}
+
+.notice {
+  background: var(--color-warn-bg);
+  color: var(--color-warn-text);
+  border-radius: 6px;
+  padding: 10px 14px;
+  font-size: 0.9rem;
+}
+
+.table-wrap {
+  overflow-x: auto;
+}
+
+.compact {
+  font-size: 0.82rem;
+
+  th,
+  td {
+    padding: 7px 9px;
+    white-space: nowrap;
+  }
+}
+
+.num {
+  text-align: right;
+}
+
+.strong {
+  font-weight: 600;
+}
+
+.negative {
+  color: var(--color-warn-text);
+}
+
+.totals-row {
+  font-weight: 700;
+  background: #f4f6f8;
+}
+
+tr.selected {
+  background: #e3f1fb;
+}
+
+.doc {
+  margin-top: 20px;
+  border-top: 2px solid var(--color-border);
+  padding-top: 16px;
+}
+
+.doc-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 8px;
+
+  h2 {
+    margin: 0;
+    font-size: 1.15rem;
+  }
+
+  .hint {
+    margin: 2px 0 0;
+  }
+}

@@ -321,9 +321,17 @@ namespace MemberEligibility.Api.Migrations
                         .HasColumnType("text")
                         .HasColumnName("last_name");
 
+                    b.Property<string>("Mbi")
+                        .HasColumnType("text")
+                        .HasColumnName("mbi");
+
                     b.Property<string>("Phone")
                         .HasColumnType("text")
                         .HasColumnName("phone");
+
+                    b.Property<long?>("ProviderContractId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("provider_contract_id");
 
                     b.Property<string>("State")
                         .HasColumnType("text")
@@ -336,7 +344,68 @@ namespace MemberEligibility.Api.Migrations
                     b.HasKey("Id")
                         .HasName("pk_members");
 
+                    b.HasIndex("ProviderContractId")
+                        .HasDatabaseName("ix_members_provider_contract_id");
+
                     b.ToTable("members", (string)null);
+                });
+
+            modelBuilder.Entity("MemberEligibility.Api.Models.MmrRecord", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("AdjustmentReasonCode")
+                        .HasColumnType("text")
+                        .HasColumnName("adjustment_reason_code");
+
+                    b.Property<string>("BeneficiaryId")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("beneficiary_id");
+
+                    b.Property<string>("ContractNumber")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("contract_number");
+
+                    b.Property<int>("MemberMonths")
+                        .HasColumnType("integer")
+                        .HasColumnName("member_months");
+
+                    b.Property<decimal>("PartAPayment")
+                        .HasColumnType("numeric")
+                        .HasColumnName("part_a_payment");
+
+                    b.Property<decimal>("PartBPayment")
+                        .HasColumnType("numeric")
+                        .HasColumnName("part_b_payment");
+
+                    b.Property<decimal>("PartCRiskFactor")
+                        .HasColumnType("numeric")
+                        .HasColumnName("part_c_risk_factor");
+
+                    b.Property<decimal>("PartDPayment")
+                        .HasColumnType("numeric")
+                        .HasColumnName("part_d_payment");
+
+                    b.Property<DateOnly>("PaymentMonth")
+                        .HasColumnType("date")
+                        .HasColumnName("payment_month");
+
+                    b.Property<string>("PlanBenefitPackage")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("plan_benefit_package");
+
+                    b.HasKey("Id")
+                        .HasName("pk_mmr_records");
+
+                    b.ToTable("mmr_records", (string)null);
                 });
 
             modelBuilder.Entity("MemberEligibility.Api.Models.Plan", b =>
@@ -422,6 +491,47 @@ namespace MemberEligibility.Api.Migrations
                     b.ToTable("plans", (string)null);
                 });
 
+            modelBuilder.Entity("MemberEligibility.Api.Models.ProviderContract", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("ContractNumber")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("contract_number");
+
+                    b.Property<DateOnly>("EffectiveDate")
+                        .HasColumnType("date")
+                        .HasColumnName("effective_date");
+
+                    b.Property<decimal>("PmpmRate")
+                        .HasColumnType("numeric")
+                        .HasColumnName("pmpm_rate");
+
+                    b.Property<string>("ProviderGroupName")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("provider_group_name");
+
+                    b.Property<string>("ProviderTin")
+                        .HasColumnType("text")
+                        .HasColumnName("provider_tin");
+
+                    b.Property<DateOnly?>("TermDate")
+                        .HasColumnType("date")
+                        .HasColumnName("term_date");
+
+                    b.HasKey("Id")
+                        .HasName("pk_provider_contracts");
+
+                    b.ToTable("provider_contracts", (string)null);
+                });
+
             modelBuilder.Entity("MemberEligibility.Api.Models.ClaimLine", b =>
                 {
                     b.HasOne("MemberEligibility.Api.Models.Claim", null)
@@ -451,6 +561,14 @@ namespace MemberEligibility.Api.Migrations
                     b.Navigation("Member");
 
                     b.Navigation("Plan");
+                });
+
+            modelBuilder.Entity("MemberEligibility.Api.Models.Member", b =>
+                {
+                    b.HasOne("MemberEligibility.Api.Models.ProviderContract", null)
+                        .WithMany()
+                        .HasForeignKey("ProviderContractId")
+                        .HasConstraintName("fk_members_provider_contracts_provider_contract_id");
                 });
 
             modelBuilder.Entity("MemberEligibility.Api.Models.Claim", b =>
